@@ -3,6 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/v/Atulin.MinHash.svg)](https://www.nuget.org/packages/Atulin.MinHash)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
+[![codecov](https://codecov.io/gh/Atulin/MinHash/graph/badge.svg?token=DBMYHAO7BI)](https://codecov.io/gh/Atulin/MinHash)
 
 Maximum-performance **MinHash** library for .NET 10, designed for fast approximate **Jaccard similarity** estimation over text.
 
