@@ -147,23 +147,20 @@ The Mersenne-prime modulo `(2³¹−1)` is computed with a fast bitwise fold ins
 
 Measured on **AMD Ryzen 9 9900X**, .NET 10.0.6, x64 RyuJIT (AVX512/AVX2 available), BenchmarkDotNet v0.15.8.
 
-### `ComputeSignature` — sig=128 hash functions, shingle=3
+### Benchmarks on 151-character text
 
-| Text length | Mean      | P95       | Allocated |
-|------------:|----------:|----------:|----------:|
-| 100 chars   |  16.57 µs |  16.65 µs |     536 B |
-| 500 chars   |  51.13 µs |  52.12 µs |     536 B |
-| 2 000 chars | 366.0  µs | 372.1  µs |     536 B |
-
-Allocation is just the returned `uint[]` signature array (536 B for sig=128). Use `ComputeSignatureTo` to eliminate it entirely.
-
-### `EstimateJaccard` — pre-computed signatures, zero allocation
-
-| Signature size | Mean    | P95     | Allocated |
-|---------------:|--------:|--------:|----------:|
-| 64             |  5.3 ns |  5.4 ns |       0 B |
-| 128            |  5.5 ns |  5.6 ns |       0 B |
-| 256            |  9.8 ns | 10.0 ns |       0 B |
+| Method | Signature Size | Mean | Allocated |
+|---|---:|---:|---:|
+| `ComputeCharSignature` | 128 | 16.72 µs | 536 B |
+| `ComputeCharSignatureInto` | 128 | 51.53 µs | - |
+| `ComputeWordSignature` | 128 | 3.37 µs | 1144 B |
+| `ComputeWordSignatureInto` | 128 | 9.70 µs | 608 B |
+| `EstimateJaccard` | 128 | 5.43 ns | - |
+| `ComputeCharSignature` | 256 | 32.45 µs | 1048 B |
+| `ComputeCharSignatureInto` | 256 | 101.96 µs | - |
+| `ComputeWordSignature` | 256 | 6.07 µs | 1656 B |
+| `ComputeWordSignatureInto` | 256 | 18.06 µs | 608 B |
+| `EstimateJaccard` | 256 | 9.67 ns | - |
 
 `EstimateJaccard` is fully SIMD-accelerated and **zero-allocation** at any signature size. The jump from 128→256 reflects processing two AVX2 vector-width batches instead of one.
 
