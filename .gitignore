@@ -4,3 +4,4 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 /BenchmarkDotNet.Artifacts/
+/MinHash.Tests/Coverage/
