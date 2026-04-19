@@ -165,7 +165,7 @@ Measured on **AMD Ryzen 9 9900X**, .NET 10.0.6, x64 RyuJIT (AVX512/AVX2 availabl
 
 `EstimateJaccard` is fully SIMD-accelerated and **zero-allocation** at any signature size. The jump from 128→256 reflects processing two AVX2 vector-width batches instead of one.
 
-> All benchmarks were run with `dotnet run -c Release`. Source: [`MinHash.Benchmark/MinHasherBench.cs`](MinHash.Benchmark/MinHasherBench.cs).
+> All benchmarks were run with `dotnet run -c Release`. Source: [`MinHash.Benchmark/MinHasherBench.cs`](MinHash.Benchmark/MinHashBench.cs).
 
 ---
 
