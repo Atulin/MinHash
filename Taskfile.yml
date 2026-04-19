@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  bench:
+    cmds:
+      - dotnet build -c Release ./MinHash/MinHash.csproj
+      - dotnet run -c Release --project ./MinHash.Benchmark/MinHash.Benchmark.csproj
