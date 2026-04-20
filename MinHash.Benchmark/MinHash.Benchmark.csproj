@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <PackageReference Include="Lorem.Universal.NET" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

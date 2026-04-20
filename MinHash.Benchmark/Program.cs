@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Running;
 using MinHash.Benchmark;
 
-BenchmarkRunner.Run<MinHashBenchmarks>();
+var chars = BenchmarkRunner.Run<MinHashCharBenchmarks>();
+var words = BenchmarkRunner.Run<MinHashWordBenchmarks>();

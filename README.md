@@ -128,7 +128,8 @@ foreach (var (key, similarity) in results)
 // doc-2: 35.9%
 ```
 
-> **Note:** `MinHashIndex` is not thread-safe for concurrent writes. Reads (`Query`) may be parallelised safely once the index is fully populated.
+> [!NOTE]
+> `MinHashIndex` is not thread-safe for concurrent writes. Reads (`Query`) may be parallelised safely once the index is fully populated.
 
 ---
 
@@ -146,26 +147,54 @@ The Mersenne-prime modulo `(2³¹−1)` is computed with a fast bitwise fold ins
 
 ## Benchmarks
 
-Measured on **AMD Ryzen 9 9900X**, .NET 10.0.6, x64 RyuJIT (AVX512/AVX2 available), BenchmarkDotNet v0.15.8.
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.8246/25H2/2025Update/HudsonValley2)    
+AMD Ryzen 9 9900X 4.40 GHz, 1 CPU, 24 logical and 12 physical cores    
+.NET SDK 10.0.202
 
-### Benchmarks on 151-character text
+> [!TIP]
+> 1 ms = 1 000 000 ns 
 
-| Method | Signature Size | Mean | Allocated |
-|---|---:|---:|---:|
-| `ComputeCharSignature` | 128 | 16.72 µs | 536 B |
-| `ComputeCharSignatureInto` | 128 | 51.53 µs | - |
-| `ComputeWordSignature` | 128 | 3.37 µs | 1144 B |
-| `ComputeWordSignatureInto` | 128 | 9.70 µs | 608 B |
-| `EstimateJaccard` | 128 | 5.43 ns | - |
-| `ComputeCharSignature` | 256 | 32.45 µs | 1048 B |
-| `ComputeCharSignatureInto` | 256 | 101.96 µs | - |
-| `ComputeWordSignature` | 256 | 6.07 µs | 1656 B |
-| `ComputeWordSignatureInto` | 256 | 18.06 µs | 608 B |
-| `EstimateJaccard` | 256 | 9.67 ns | - |
+| Method                   | SignatureSize | StringLength | Mean             | Error          | StdDev         | Gen0   | Allocated |
+|------------------------- |-------------- |------------- |-----------------:|---------------:|---------------:|-------:|----------:|
+| ComputeCharSignature     | 128           | 100          |    10,354.366 ns |     91.5582 ns |     76.4552 ns | 0.0305 |     536 B |
+| ComputeCharSignatureInto | 128           | 100          |    32,480.913 ns |     53.7245 ns |     41.9445 ns |      - |         - |
+| EstimateJaccard          | 128           | 100          |         5.002 ns |      0.0766 ns |      0.0679 ns |      - |         - |
+| ComputeCharSignature     | 128           | 1000         |   363,994.238 ns |  5,511.1743 ns |  5,155.1559 ns |      - |     536 B |
+| ComputeCharSignatureInto | 128           | 1000         |   348,559.600 ns |  6,804.6557 ns |  9,084.0207 ns |      - |         - |
+| EstimateJaccard          | 128           | 1000         |         5.523 ns |      0.1280 ns |      0.2467 ns |      - |         - |
+| ComputeCharSignature     | 128           | 10000        | 3,723,055.273 ns | 45,820.0107 ns | 38,261.7841 ns |      - |     536 B |
+| ComputeCharSignatureInto | 128           | 10000        | 3,423,947.377 ns | 29,347.3944 ns | 26,015.7007 ns |      - |         - |
+| EstimateJaccard          | 128           | 10000        |         5.267 ns |      0.0175 ns |      0.0155 ns |      - |         - |
+| ComputeCharSignature     | 256           | 100          |    23,017.684 ns |    316.6331 ns |    280.6870 ns | 0.0610 |    1048 B |
+| ComputeCharSignatureInto | 256           | 100          |    62,919.740 ns |    489.8068 ns |    434.2009 ns |      - |         - |
+| EstimateJaccard          | 256           | 100          |         9.709 ns |      0.0918 ns |      0.0813 ns |      - |         - |
+| ComputeCharSignature     | 256           | 1000         |   729,181.595 ns |  3,801.7468 ns |  3,556.1563 ns |      - |    1048 B |
+| ComputeCharSignatureInto | 256           | 1000         |   652,213.525 ns |  2,518.8727 ns |  2,232.9150 ns |      - |         - |
+| EstimateJaccard          | 256           | 1000         |         9.128 ns |      0.0546 ns |      0.0484 ns |      - |         - |
+| ComputeCharSignature     | 256           | 10000        | 7,597,260.365 ns | 70,214.9017 ns | 65,679.0627 ns |      - |    1048 B |
+| ComputeCharSignatureInto | 256           | 10000        | 6,776,450.060 ns | 66,512.5836 ns | 55,541.0197 ns |      - |         - |
+| EstimateJaccard          | 256           | 10000        |         9.594 ns |      0.1088 ns |      0.0908 ns |      - |         - |
 
-`EstimateJaccard` is fully SIMD-accelerated and **zero-allocation** at any signature size. The jump from 128→256 reflects processing two AVX2 vector-width batches instead of one.
-
-> All benchmarks were run with `dotnet run -c Release`. Source: [`MinHash.Benchmark/MinHasherBench.cs`](MinHash.Benchmark/MinHasherBench.cs).
+| Method                   | SignatureSize | WordCount | Mean           | Error         | StdDev        | Gen0   | Allocated |
+|------------------------- |-------------- |---------- |---------------:|--------------:|--------------:|-------:|----------:|
+| ComputeWordSignature     | 128           | 100       |  12,969.747 ns |   228.0700 ns |   262.6458 ns | 0.1526 |    2728 B |
+| ComputeWordSignatureInto | 128           | 100       |  37,677.623 ns |   209.5786 ns |   175.0076 ns | 0.1221 |    2192 B |
+| EstimateJaccard          | 128           | 100       |       5.185 ns |     0.0237 ns |     0.0210 ns |      - |         - |
+| ComputeWordSignature     | 128           | 1000      |  33,682.019 ns |   510.5536 ns |   398.6066 ns | 0.2441 |    4800 B |
+| ComputeWordSignatureInto | 128           | 1000      |  94,254.856 ns | 1,865.2124 ns | 2,358.8967 ns | 0.2441 |    4264 B |
+| EstimateJaccard          | 128           | 1000      |       5.442 ns |     0.1289 ns |     0.1143 ns |      - |         - |
+| ComputeWordSignature     | 128           | 10000     |  35,363.723 ns |   700.3849 ns | 1,150.7525 ns | 0.2441 |    4800 B |
+| ComputeWordSignatureInto | 128           | 10000     |  90,928.486 ns |   592.2256 ns |   524.9925 ns | 0.2441 |    4264 B |
+| EstimateJaccard          | 128           | 10000     |       5.378 ns |     0.0397 ns |     0.0352 ns |      - |         - |
+| ComputeWordSignature     | 256           | 100       |  24,609.826 ns |   231.8569 ns |   205.5351 ns | 0.1831 |    3240 B |
+| ComputeWordSignatureInto | 256           | 100       |  69,685.128 ns | 1,057.9764 ns |   937.8686 ns | 0.1221 |    2192 B |
+| EstimateJaccard          | 256           | 100       |       9.560 ns |     0.0768 ns |     0.0641 ns |      - |         - |
+| ComputeWordSignature     | 256           | 1000      | 142,392.912 ns | 2,790.1497 ns | 2,609.9077 ns | 0.2441 |    5312 B |
+| ComputeWordSignatureInto | 256           | 1000      | 170,191.572 ns |   856.1088 ns |   714.8896 ns | 0.2441 |    4264 B |
+| EstimateJaccard          | 256           | 1000      |       9.072 ns |     0.0485 ns |     0.0430 ns |      - |         - |
+| ComputeWordSignature     | 256           | 10000     | 142,703.622 ns | 2,524.0600 ns | 2,237.5134 ns | 0.2441 |    5312 B |
+| ComputeWordSignatureInto | 256           | 10000     | 175,198.652 ns | 1,072.4958 ns |   950.7396 ns | 0.2441 |    4264 B |
+| EstimateJaccard          | 256           | 10000     |       9.446 ns |     0.0554 ns |     0.0518 ns |      - |         - |
 
 ---
 
