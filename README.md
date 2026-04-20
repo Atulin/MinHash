@@ -135,15 +135,13 @@ foreach (var (key, similarity) in results)
 
 ## Algorithm
 
-1. Decompose text into overlapping **k-character shingles** (character n-grams).
+1. Decompose text into overlapping **$k$-character shingles** (character n-grams).
 2. Hash each shingle with **xxHash32** over its raw UTF-16 bytes.
-3. Apply **`numHashFunctions` universal hashes**: `h_i(x) = (aᵢ·x + bᵢ) mod (2³¹−1)`.
-4. `Signature[i]` = **minimum** over all shingles of `hᵢ(shingle)`.
-5. **Jaccard(A, B) ≈ |{i : sigA[i] == sigB[i]}| / numHashFunctions**.
+3. Apply **$n$ universal hash functions**: $h_i(x) = (a_i x + b_i) \bmod (2^{31} - 1)$
+4. Compute signature: $\text{Signature}[i] = \min_{s \in S} h_i(s)$
+5. Estimate similarity: $J(A, B) \approx \frac{|{i : \text{sig}_A[i] = \text{sig}_B[i]}|}{n}$
 
-The Mersenne-prime modulo `(2³¹−1)` is computed with a fast bitwise fold instead of integer division.
-
----
+The Mersenne-prime modulo $2^{31} - 1$ is computed with a fast bitwise fold instead of integer division.
 
 ## Benchmarks
 
@@ -200,15 +198,16 @@ AMD Ryzen 9 9900X 4.40 GHz, 1 CPU, 24 logical and 12 physical cores
 
 ## Configuration Guide
 
-| Parameter       | Default | Recommendation                                         |
-|-----------------|---------|--------------------------------------------------------|
-| `signatureSize` | 128     | 128 for ~97% accuracy; 256 for ~99% accuracy           |
-| `shingleSize`   | 3       | 3–4 for short texts; 5 for paragraphs/documents        |
-| `seed`          | 0xDEADBEEF | Change only if you need independent hash families  |
+| Parameter       | Default      | Recommendation                                    |
+| --------------- | ------------ | ------------------------------------------------- |
+| `signatureSize` | 128          | 128 for ~97% accuracy; 256 for ~99% accuracy      |
+| `shingleSize`   | 3            | 3–4 for short texts; 5 for longer documents       |
+| `seed`          | `0xDEADBEEF` | Change only if you need independent hash families |
 
-**Accuracy vs. size trade-off:** Jaccard estimation error is approximately `1/√(signatureSize)`. At 128 functions the expected error is ≈ 8.8%; at 256 it drops to ≈ 6.25%.
+**Accuracy vs. size trade-off:** Jaccard estimation error is approximately $\frac{1}{\sqrt{n}}$
 
----
+* At $n = 128$: error $\approx 8.8%$
+* At $n = 256$: error $\approx 6.25%$
 
 ## Thread Safety
 
